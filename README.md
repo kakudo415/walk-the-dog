@@ -8,7 +8,7 @@ npm install
 
 ```sh
 # Builds the project and opens it in a new browser tab. Auto-reloads when the project changes.
-npm start
+NODE_OPTIONS=--openssl-legacy-provider npm run start
 ```
 
 ## How to build in release mode
