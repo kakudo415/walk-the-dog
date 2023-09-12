@@ -61,6 +61,13 @@ impl RedHatBoy {
             },
         )
     }
+
+    pub fn run_right(&mut self) {
+        self.state_machine = match self.state_machine {
+            RedHatBoyStateMachine::Idle(state) => RedHatBoyStateMachine::Running(state.run()),
+            _ => self.state_machine,
+        }
+    }
 }
 
 impl RedHatBoyStateMachine {
@@ -81,14 +88,13 @@ impl RedHatBoyStateMachine {
     fn update(self) -> Self {
         match self {
             RedHatBoyStateMachine::Idle(mut state) => {
-                if state.context.frame < 29 {
-                    state.context.frame += 1;
-                } else {
-                    state.context.frame = 0;
-                }
+                state.update();
                 RedHatBoyStateMachine::Idle(state)
             }
-            RedHatBoyStateMachine::Running(_) => self,
+            RedHatBoyStateMachine::Running(mut state) => {
+                state.update();
+                RedHatBoyStateMachine::Running(state)
+            }
         }
     }
 }
