@@ -10,9 +10,9 @@ pub struct RedHatBoyState<S> {
 
 #[derive(Copy, Clone)]
 pub struct RedHatBoyContext {
-    frame: u8,
-    position: Point,
-    velocity: Point,
+    pub frame: u8,
+    pub position: Point,
+    pub velocity: Point,
 }
 
 #[derive(Copy, Clone)]
@@ -20,6 +20,12 @@ pub struct Idle;
 
 #[derive(Copy, Clone)]
 pub struct Running;
+
+impl<S> RedHatBoyState<S> {
+    pub fn context(&self) -> &RedHatBoyContext {
+        &self.context
+    }
+}
 
 impl RedHatBoyState<Idle> {
     pub fn new() -> Self {
@@ -38,5 +44,15 @@ impl RedHatBoyState<Idle> {
             context: self.context,
             _state: Running {},
         }
+    }
+
+    pub fn frame_name(&self) -> &str {
+        "Idle"
+    }
+}
+
+impl RedHatBoyState<Running> {
+    pub fn frame_name(&self) -> &str {
+        "Run"
     }
 }

@@ -113,6 +113,7 @@ impl Game for WalkTheDog {
                 },
             );
         });
+        self.rhb.as_ref().unwrap().draw(renderer);
     }
 }
 
