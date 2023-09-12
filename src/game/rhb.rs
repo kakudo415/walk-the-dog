@@ -19,6 +19,10 @@ enum RedHatBoyStateMachine {
     Running(RedHatBoyState<Running>),
 }
 
+pub enum Event {
+    Run,
+}
+
 impl RedHatBoy {
     pub fn new(sprite_sheet: Sheet, image: HtmlImageElement) -> Self {
         RedHatBoy {
@@ -63,14 +67,18 @@ impl RedHatBoy {
     }
 
     pub fn run_right(&mut self) {
-        self.state_machine = match self.state_machine {
-            RedHatBoyStateMachine::Idle(state) => RedHatBoyStateMachine::Running(state.run()),
-            _ => self.state_machine,
-        }
+        self.state_machine = self.state_machine.transition(Event::Run);
     }
 }
 
 impl RedHatBoyStateMachine {
+    pub fn transition(self, event: Event) -> Self {
+        match (self, event) {
+            (RedHatBoyStateMachine::Idle(state), Event::Run) => state.run().into(),
+            _ => self,
+        }
+    }
+
     fn frame_name(&self) -> &str {
         match self {
             RedHatBoyStateMachine::Idle(state) => state.frame_name(),
@@ -96,5 +104,11 @@ impl RedHatBoyStateMachine {
                 RedHatBoyStateMachine::Running(state)
             }
         }
+    }
+}
+
+impl From<RedHatBoyState<Running>> for RedHatBoyStateMachine {
+    fn from(state: RedHatBoyState<Running>) -> Self {
+        RedHatBoyStateMachine::Running(state)
     }
 }
