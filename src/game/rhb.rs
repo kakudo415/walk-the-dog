@@ -28,6 +28,10 @@ impl RedHatBoy {
         }
     }
 
+    pub fn update(&mut self) {
+        self.state_machine = self.state_machine.update();
+    }
+
     pub fn draw(&self, renderer: &Renderer) {
         let frame_name = format!(
             "{} ({}).png",
@@ -71,6 +75,20 @@ impl RedHatBoyStateMachine {
         match self {
             RedHatBoyStateMachine::Idle(state) => &state.context(),
             RedHatBoyStateMachine::Running(state) => &state.context(),
+        }
+    }
+
+    fn update(self) -> Self {
+        match self {
+            RedHatBoyStateMachine::Idle(mut state) => {
+                if state.context.frame < 29 {
+                    state.context.frame += 1;
+                } else {
+                    state.context.frame = 0;
+                }
+                RedHatBoyStateMachine::Idle(state)
+            }
+            RedHatBoyStateMachine::Running(_) => self,
         }
     }
 }

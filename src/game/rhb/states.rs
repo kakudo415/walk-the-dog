@@ -4,7 +4,7 @@ const FLOOR: i16 = 475;
 
 #[derive(Copy, Clone)]
 pub struct RedHatBoyState<S> {
-    context: RedHatBoyContext,
+    pub context: RedHatBoyContext,
     _state: S,
 }
 
