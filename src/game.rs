@@ -52,6 +52,9 @@ impl Game for WalkTheDog {
         if keystate.is_pressed("ArrowRight") {
             self.rhb.as_mut().unwrap().run_right();
         }
+        if keystate.is_pressed("ArrowDown") {
+            self.rhb.as_mut().unwrap().slide();
+        }
 
         self.rhb.as_mut().unwrap().update();
     }

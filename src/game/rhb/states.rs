@@ -46,6 +46,14 @@ pub struct Idle;
 #[derive(Copy, Clone)]
 pub struct Running;
 
+#[derive(Copy, Clone)]
+pub struct Sliding;
+
+pub enum SlidingEndState {
+    Complete(RedHatBoyState<Running>),
+    Sliding(RedHatBoyState<Sliding>),
+}
+
 impl<S> RedHatBoyState<S> {
     pub fn context(&self) -> &RedHatBoyContext {
         &self.context
@@ -54,6 +62,7 @@ impl<S> RedHatBoyState<S> {
 
 const IDLE_FRAMES: u8 = 29;
 const RUNNING_FRAMES: u8 = 23;
+const SLIDING_FRAMES: u8 = 14;
 
 impl RedHatBoyState<Idle> {
     pub fn new() -> Self {
@@ -78,8 +87,9 @@ impl RedHatBoyState<Idle> {
         "Idle"
     }
 
-    pub fn update(&mut self) {
+    pub fn update(mut self) -> Self {
         self.context = self.context.update(IDLE_FRAMES);
+        self
     }
 }
 
@@ -88,7 +98,38 @@ impl RedHatBoyState<Running> {
         "Run"
     }
 
-    pub fn update(&mut self) {
+    pub fn update(mut self) -> Self {
         self.context = self.context.update(RUNNING_FRAMES);
+        self
+    }
+
+    pub fn slide(self) -> RedHatBoyState<Sliding> {
+        RedHatBoyState {
+            context: self.context.reset_frame(),
+            _state: Sliding {},
+        }
+    }
+}
+
+impl RedHatBoyState<Sliding> {
+    pub fn frame_name(&self) -> &str {
+        "Slide"
+    }
+
+    pub fn update(mut self) -> SlidingEndState {
+        self.context = self.context.update(SLIDING_FRAMES);
+
+        if self.context.frame >= SLIDING_FRAMES {
+            SlidingEndState::Complete(self.stand())
+        } else {
+            SlidingEndState::Sliding(self)
+        }
+    }
+
+    pub fn stand(self) -> RedHatBoyState<Running> {
+        RedHatBoyState {
+            context: self.context.reset_frame(),
+            _state: Running {},
+        }
     }
 }
