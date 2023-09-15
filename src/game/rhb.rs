@@ -18,12 +18,14 @@ enum RedHatBoyStateMachine {
     Idle(RedHatBoyState<Idle>),
     Running(RedHatBoyState<Running>),
     Sliding(RedHatBoyState<Sliding>),
+    Jumping(RedHatBoyState<Jumping>)
 }
 
 pub enum Event {
     Run,
     Slide,
     Update,
+    Jump,
 }
 
 impl RedHatBoy {
@@ -76,6 +78,10 @@ impl RedHatBoy {
     pub fn slide(&mut self) {
         self.state_machine = self.state_machine.transition(Event::Slide);
     }
+
+    pub fn jump(&mut self) {
+        self.state_machine = self.state_machine.transition(Event::Jump);
+    }
 }
 
 impl RedHatBoyStateMachine {
@@ -86,6 +92,8 @@ impl RedHatBoyStateMachine {
             (RedHatBoyStateMachine::Idle(state), Event::Update) => state.update().into(),
             (RedHatBoyStateMachine::Running(state), Event::Update) => state.update().into(),
             (RedHatBoyStateMachine::Sliding(state), Event::Update) => state.update().into(),
+            (RedHatBoyStateMachine::Running(state), Event::Jump) => state.jump().into(),
+            (RedHatBoyStateMachine::Jumping(state), Event::Update) => state.update().into(),
             _ => self,
         }
     }
@@ -95,6 +103,7 @@ impl RedHatBoyStateMachine {
             RedHatBoyStateMachine::Idle(state) => state.frame_name(),
             RedHatBoyStateMachine::Running(state) => state.frame_name(),
             RedHatBoyStateMachine::Sliding(state) => state.frame_name(),
+            RedHatBoyStateMachine::Jumping(state) => state.frame_name(),
         }
     }
 
@@ -103,6 +112,7 @@ impl RedHatBoyStateMachine {
             RedHatBoyStateMachine::Idle(state) => &state.context(),
             RedHatBoyStateMachine::Running(state) => &state.context(),
             RedHatBoyStateMachine::Sliding(state) => &state.context(),
+            RedHatBoyStateMachine::Jumping(state) => &state.context(),
         }
     }
 
@@ -134,6 +144,21 @@ impl From<SlidingEndState> for RedHatBoyStateMachine {
         match end_state {
             SlidingEndState::Complete(running_state) => running_state.into(),
             SlidingEndState::Sliding(sliding_state) => sliding_state.into(),
+        }
+    }
+}
+
+impl From<RedHatBoyState<Jumping>> for RedHatBoyStateMachine {
+    fn from(state: RedHatBoyState<Jumping>) -> Self {
+        RedHatBoyStateMachine::Jumping(state)
+    }
+}
+
+impl From<JumpingEndState> for RedHatBoyStateMachine {
+    fn from(end_state: JumpingEndState) -> Self {
+        match end_state {
+            JumpingEndState::Complete(running_state) => running_state.into(),
+            JumpingEndState::Jumping(jumping_state) => jumping_state.into(),
         }
     }
 }

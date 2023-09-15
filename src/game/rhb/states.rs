@@ -15,10 +15,13 @@ pub struct RedHatBoyContext {
     pub velocity: Point,
 }
 
+const GRAVITY: i16 = 1;
 const RUNNING_SPEED: i16 = 3;
+const JUMP_SPEED: i16 = -25;
 
 impl RedHatBoyContext {
     pub fn update(mut self, frame_count: u8) -> Self {
+        self.velocity.y += GRAVITY;
         if self.frame < frame_count {
             self.frame += 1;
         } else {
@@ -26,6 +29,9 @@ impl RedHatBoyContext {
         }
         self.position.x += self.velocity.x;
         self.position.y += self.velocity.y;
+        if self.position.y > FLOOR {
+            self.position.y = FLOOR;
+        }
         self
     }
 
@@ -36,6 +42,11 @@ impl RedHatBoyContext {
 
     pub fn run_right(mut self) -> Self {
         self.velocity.x = RUNNING_SPEED;
+        self
+    }
+
+    pub fn set_vertical_velocity(mut self, y: i16) -> Self {
+        self.velocity.y = y;
         self
     }
 }
@@ -49,9 +60,17 @@ pub struct Running;
 #[derive(Copy, Clone)]
 pub struct Sliding;
 
+#[derive(Copy, Clone)]
+pub struct Jumping;
+
 pub enum SlidingEndState {
     Complete(RedHatBoyState<Running>),
     Sliding(RedHatBoyState<Sliding>),
+}
+
+pub enum JumpingEndState {
+    Complete(RedHatBoyState<Running>),
+    Jumping(RedHatBoyState<Jumping>),
 }
 
 impl<S> RedHatBoyState<S> {
@@ -63,6 +82,7 @@ impl<S> RedHatBoyState<S> {
 const IDLE_FRAMES: u8 = 29;
 const RUNNING_FRAMES: u8 = 23;
 const SLIDING_FRAMES: u8 = 14;
+const JUMPING_FRAMES: u8 = 35;
 
 impl RedHatBoyState<Idle> {
     pub fn new() -> Self {
@@ -109,6 +129,13 @@ impl RedHatBoyState<Running> {
             _state: Sliding {},
         }
     }
+
+    pub fn jump(self) -> RedHatBoyState<Jumping> {
+        RedHatBoyState {
+            context: self.context.set_vertical_velocity(JUMP_SPEED).reset_frame(),
+            _state: Jumping {},
+        }
+    }
 }
 
 impl RedHatBoyState<Sliding> {
@@ -127,6 +154,28 @@ impl RedHatBoyState<Sliding> {
     }
 
     pub fn stand(self) -> RedHatBoyState<Running> {
+        RedHatBoyState {
+            context: self.context.reset_frame(),
+            _state: Running {},
+        }
+    }
+}
+
+impl RedHatBoyState<Jumping> {
+    pub fn frame_name(&self) -> &str {
+        "Jump"
+    }
+
+    pub fn update(mut self) -> JumpingEndState {
+        self.context = self.context.update(JUMPING_FRAMES);
+        if self.context.position.y >= FLOOR {
+            JumpingEndState::Complete(self.land())
+        } else {
+            JumpingEndState::Jumping(self)
+        }
+    }
+
+    pub fn land(self) -> RedHatBoyState<Running> {
         RedHatBoyState {
             context: self.context.reset_frame(),
             _state: Running {},
