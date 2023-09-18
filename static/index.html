@@ -1,11 +1,41 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Walk the Dog</title>
-  </head>
-  <body>
+<head>
+  <meta charset="UTF-8">
+  <title>Walk the Dog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Walk the Dog</h1>
     <canvas id="canvas" tabindex="0" height="600" width="600"></canvas>
+    <h2>Related Repositories</h2>
+    <p>
+    <ul>
+      <li><a href="https://github.com/PacktPublishing/Game-Development-with-Rust-and-WebAssembly">PacktPublishing/Game-Development-with-Rust-and-WebAssembly</a></li>
+      <li><a href="https://github.com/kakudo415/walk-the-dog">kakudo415/walk-the-dog</a></li>
+    </ul>
+    </p>
+    <h2>Blog Articles about the Game</h2>
+    <p>
+    <ul>
+      <li><a href="https://kakudo.org/blog/game-dev-with-rust-and-wasm-notes-1-3/">O'Reilly『RustとWebAssemblyによるゲーム開発』を進める（1･2･3章）</a></li>
+      <li><a href="https://kakudo.org/blog/game-dev-with-rust-and-wasm-notes-4/">O'Reilly『RustとWebAssemblyによるゲーム開発』を進める（4章）</a></li>
+    </ul>
+    </p>
     <script src="index.js"></script>
-  </body>
+    <script>
+      document.onkeydown = (event) => {
+        switch (event.key) {
+          case 'ArrowUp':
+          case 'ArrowDown':
+          case 'ArrowLeft':
+          case 'ArrowRight':
+          case ' ':
+            event.preventDefault();
+        }
+      }
+    </script>
+  </div>
+</body>
 </html>
