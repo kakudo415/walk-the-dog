@@ -18,14 +18,14 @@ enum RedHatBoyStateMachine {
     Idle(RedHatBoyState<Idle>),
     Running(RedHatBoyState<Running>),
     Sliding(RedHatBoyState<Sliding>),
-    Jumping(RedHatBoyState<Jumping>)
+    Jumping(RedHatBoyState<Jumping>),
 }
 
 pub enum Event {
     Run,
     Slide,
-    Update,
     Jump,
+    Update,
 }
 
 impl RedHatBoy {
